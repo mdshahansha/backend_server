@@ -9,18 +9,20 @@ const User = require('../models/users');
 // usernameField: 'email'   -->   By default, LocalStrategy expects to find credentials in parameters named username and password; 
 // If your site prefers to name these fields differently, options are available to change the defaults.
 passport.use(new LocalStrategy({
-    usernameField: 'email'
+    usernameField: 'email',
+    passReqToCallback:true //it basically allows us to set first argument aas a req (request)
     },
-    function(email, password, done){
+    function(req,email, password, done){
         // find a user and establish the identity
         User.findOne({email: email}, function(err, user)  {
             if (err){
+                req.flash('error',err);
                 console.log('Error in finding user --> Passport');
                 return done(err);
             }
 
             if (!user || user.password != password){
-                console.log('Invalid Username/Password');
+                req.flash('error','Invalid Username/Password');
                 return done(null, false);
             }
 

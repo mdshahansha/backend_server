@@ -1,4 +1,5 @@
-const Post=require('../models/post');
+const Post = require("../models/post");
+const User = require("../models/users");
 // module.exports.home=function(req,res){
 //     console.log(req.cookies);
 //     // res.cookie('user mom',25);
@@ -9,11 +10,28 @@ const Post=require('../models/post');
 //     // return res.end(' <h1>name of home contoller</h1> ')
 // }
 
-module.exports.home = function(req, res){
-    Post.find({}).populate('user').exec(function(err,posts){
-        return res.render('home',{
-            title:'H o m e 😋',
-            posts:posts
-        })
+module.exports.home =async function (req, res) {
+  try{
+
+    let posts=await Post.find({})
+    .sort('-createdAt')
+    .populate("user")
+    .populate({
+        path:'comments',
+        populate:{
+            path:'user'
+        }
     })
-}
+     let users= await User.find({});
+      
+      return res.render("home", {
+        title: "H o m e 😋",
+        posts: posts,
+        all_users:users
+      });
+      
+  }catch(err){
+    console.log('error agya',err);
+    return;
+  }
+};
